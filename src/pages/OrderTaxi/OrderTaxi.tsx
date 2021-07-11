@@ -22,7 +22,7 @@ export const OrderTaxi = (): JSX.Element => {
       <div className={classes.forms}>
         <Form form={form} layout="horizontal" initialValues={{ address: mapStore.address }}>
           <Form.Item name="address" label="Адрес">
-            <Input allowClear placeholder="Введите адрес здесь" style={{ width: 500 }} onPressEnter={submit} />
+            <Input allowClear placeholder="Введите адрес здесь" className={classes.input} onPressEnter={submit} />
           </Form.Item>
           <Button type="primary" onClick={submit} className={classes.button}>Отметить точку</Button>
           <Button danger type="primary" onClick={() => {
