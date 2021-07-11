@@ -17,9 +17,9 @@ export const sendAddressToGeoService = () => {
     .catch(function (error) {
       // handle error
       notification.error({
-        message: 'Некорректный адрес',
+        message: 'Incorrect address',
         description:
-          'Вы ввели некорректный адрес. Не удалось отметить точку на карте. Попробуйте снова.',
+          'You entered an incorrect address. Failed to add a point to the map. Try again.',
       });
 
       mapStore.clearAddress();
@@ -39,9 +39,9 @@ export const sendCoordinatesToGeoService = (waypoint: number[]) => {
     .catch(function (error) {
       // handle error
       notification.error({
-        message: 'Некорректный адрес',
+        message: 'Incorrect address',
         description:
-          'Не удалось получить адрес. Попробуйте снова.',
+          'Failed to receive an address. Try again.',
       });
       console.error(error);
     })

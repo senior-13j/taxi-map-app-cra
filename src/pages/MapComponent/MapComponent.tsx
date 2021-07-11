@@ -14,7 +14,7 @@ export const MapComponent = observer((): JSX.Element => {
 
   return (
     <div className={classes.map}>
-      <YMaps>
+      <YMaps query={{ lang: 'en_US' }}>
         <Map state={mapStore.state} width={900} height={500} >
           {mapStore?.waypoints?.map((waypoint, i) => <Placemark key={i} geometry={waypoint} options={getPointOptions()} />)}
         </Map>

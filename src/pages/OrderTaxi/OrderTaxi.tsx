@@ -17,20 +17,20 @@ export const OrderTaxi = (): JSX.Element => {
 
   return (
     <div className={classes.orderTaxi}>
-      <Title>Заказать такси</Title>
+      <Title>Order a taxi</Title>
       <MapComponent />
       <div className={classes.forms}>
         <Form form={form} layout="horizontal" initialValues={{ address: mapStore.address }}>
-          <Form.Item name="address" label="Адрес">
-            <Input allowClear placeholder="Введите адрес здесь" className={classes.input} onPressEnter={submit} />
+          <Form.Item name="address" label="Address">
+            <Input allowClear placeholder="Enter your address here" className={classes.input} onPressEnter={submit} />
           </Form.Item>
-          <Button type="primary" onClick={submit} className={classes.button}>Отметить точку</Button>
+          <Button type="primary" onClick={submit} className={classes.button}>Add point to map</Button>
           <Button danger type="primary" onClick={() => {
             mapStore.clearWaypoints();
-          }} className={classes.button}>Удалить все точки</Button>
+          }} className={classes.button}>Remove all points</Button>
           <Button type="default" onClick={() => {
             mapStore.backToUserCoords();
-          }}>Показать мое местоположение</Button>
+          }}>Show my location</Button>
         </Form>
       </div>
     </div>
