@@ -1,3 +1,4 @@
+import notification from "antd/lib/notification";
 import { makeAutoObservable } from "mobx";
 
 type MapState = {
@@ -38,22 +39,30 @@ class MapStore implements MapStore {
   detectUserPosition() {
     const geoSuccess = (position: any): void => {
       this.setUserCoordsCenter([position.coords.latitude, position.coords.longitude]);
+      notification.success({
+        message: 'Geolocation detection is enabled',
+      });
     };
 
-    const geoError = (error: any): void => {
-      console.error('Error occurred. Error code: ' + error.code);
+    const geoError = (): void => {
+      notification.warning({
+        message: 'Geolocation detection is disabled',
+        description: 'San Francisco region is set by default'
+      });
     };
 
     const geoOptions = {
       enableHighAccuracy: true,
+      maximumAge: 600000
     };
 
     // check for Geolocation support
     if (navigator.geolocation) {
-      console.log('Geolocation is supported!');
       navigator.geolocation.getCurrentPosition(geoSuccess, geoError, geoOptions);
     } else {
-      console.log('Geolocation is not supported for this Browser/OS version yet.');
+      notification.warning({
+        message: 'Geolocation is not supported for this Browser/OS version yet.',
+      });
     }
   }
 
