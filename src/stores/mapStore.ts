@@ -1,5 +1,6 @@
 import notification from "antd/lib/notification";
 import { makeAutoObservable } from "mobx";
+import { sendCoordinatesToGeoService } from "../services/geoService";
 
 type MapState = {
   center: number[];
@@ -9,8 +10,11 @@ interface MapStore {
   defaultState: MapState;
   state: MapState;
   waypoints: number[][];
-  address: string;
+  routes: any;
+  startAddress: string;
+  finalAddress: string;
   apiKey: string;
+  map: any;
 }
 
 class MapStore implements MapStore {
@@ -24,8 +28,10 @@ class MapStore implements MapStore {
   defaultState = { center: [37.7, -122.4], zoom: 11 };
   state = { ...this.defaultState };
   waypoints = [] as number[][];
-  address = '';
+  startAddress = '';
+  finalAddress = '';
   apiKey = 'ead9f847-9d70-4b5b-a7e9-be39c3252170';
+  routes = [] as any;
 
   setUserCoordsCenter(position: number[]) {
     this.state = { ...this.state, center: position };
@@ -66,16 +72,45 @@ class MapStore implements MapStore {
     }
   }
 
-  addWaypoint(waypoint: number[]) {
-    this.waypoints.push(waypoint);
+  saveMapInstance(mapRef: any) {
+    this.map = mapRef;
+    if (!this.map) return;
+    this.addHandlers();
   }
 
-  setAddress(value: string) {
-    this.address = value;
+  addHandlers() {
+    this.map.cursors.push('pointer');
   }
 
-  clearAddress() {
-    this.address = '';
+  async waypointClickHandler(event: any) {
+    const coords = event.get('coords');
+    const address = await sendCoordinatesToGeoService(coords);
+    this.map.balloon.open(coords, `
+    <div style="display: flex; flex-direction: column; justify-content: center">
+      <span style="font-weight: 700; font-style: italic; margin: 5px">${address}</span>
+    </div>
+    `, {});
+    this.goToPoint(coords);
+  }
+
+  addWaypoint(waypoint: number[], type: string) {
+    this.checkWaypointCount(waypoint, type);
+  }
+
+  setStartAddress(value: string) {
+    this.startAddress = value;
+  }
+
+  setFinalAddress(value: string) {
+    this.finalAddress = value;
+  }
+
+  clearStartAddress() {
+    this.startAddress = '';
+  }
+
+  clearFinalAddress() {
+    this.finalAddress = '';
   }
 
   clearWaypoints() {
@@ -86,13 +121,57 @@ class MapStore implements MapStore {
     this.state = {} as MapState;
   }
 
+  removeRoutes() {
+    this.routes = [] as number[][];
+  }
+
+  removeData() {
+    this.clearWaypoints();
+    this.removeRoutes();
+    this.clearAddressesForNewRoute();
+  }
+
+  clearAddressesForNewRoute() {
+    this.startAddress = '';
+    this.finalAddress = ''
+  }
+
+  addRoute() {
+    this.routes.push([this.waypoints[0], this.waypoints[1]]);
+  }
+
   backToUserCoords() {
-    this.state = { ...this.defaultState };
+    this.state = { ...this.defaultState, zoom: 8 };
     this.goToPoint([this.state.center[0] + 0.00000000001, this.state.center[1] + 0.00000000001]);
   }
 
   goToPoint(waypoint: number[]) {
-    this.state = { ...this.state, center: waypoint, zoom: 8 };
+    this.state = { ...this.state, center: waypoint };
+  }
+
+  checkWaypointCount(waypointToAdd: number[], type: string) {
+    if (this.waypoints.length > 1) {
+      this.removeData();
+    }
+
+    if (this.waypoints.length) {
+      if (type === 'startAddress') {
+        this.waypoints[0] = waypointToAdd;
+      } else {
+        this.waypoints[1] = waypointToAdd;
+      }
+    } else {
+      this.waypoints.push(waypointToAdd);
+    }
+
+    if (this.waypoints.length === 2) {
+      this.createRoute();
+    }
+  }
+
+  createRoute() {
+    this.addRoute();
+    this.clearAddressesForNewRoute();
   }
 }
 
